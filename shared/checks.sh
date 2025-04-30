@@ -1,7 +1,7 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
-. $(dirname ${BASH_SOURCE[0]})/notifications.sh
+. "$(dirname ${BASH_SOURCE[0]})/notifications.sh"
 
 check_root_user() {
     ! (( ${EUID} )) || terminate
@@ -17,4 +17,53 @@ check_binaries() {
     done
     ! (( ${#missing_binaries[*]} )) || terminate "${missing_binaries[*]}"
     unset -f check_binaries
+}
+
+check_conflicting_params() {
+    local conflicting_opts
+    if [ ${REPLACE} ]; then {
+        [ ${INSTALL} ] && conflicting_opts="-r|--replace, -i|--install"
+    } || {
+        [ -z ${PURGE} ] || conflicting_opts="-r|--replace, -p|--purge"
+    }
+    fi
+    [ -z "${conflicting_opts}" ] || terminate "${conflicting_opts}"
+}
+
+check_params() {
+    local temp
+    local -r USAGE=${!#}
+    temp=$(getopt -o 'hipr' -l 'help,install,purge,replace' \
+        -n $(basename "${0}") -- "${@:1:$#-1}")
+    local -i getopt_exit_status=$?
+    (( ${getopt_exit_status} )) && terminate ${getopt_exit_status}
+    eval set -- "${temp}"
+    unset temp
+    while true; do
+        case "$1" in
+            '-h'|'--help')
+                eval ${USAGE}
+                exit 0
+            ;;
+            '-i'|'--install')
+                [ -z ${INSTALL} ] && readonly INSTALL="yes"
+                shift
+            ;;
+            '-p'|'--purge')
+                [ -z ${PURGE} ] && readonly PURGE="yes"
+                shift
+            ;;
+            '-r'|'--replace')
+                [ -z ${REPLACE} ] && readonly REPLACE="yes"
+                shift
+            ;;
+            '--')
+                shift
+                break
+            ;;
+        esac
+        check_conflicting_params
+    done
+    ! (( $# )) || { eval ${USAGE} >&2 && exit 1; }
+    unset -f check_conflicting_params check_params
 }

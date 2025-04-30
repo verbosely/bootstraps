@@ -67,7 +67,7 @@ terminate() {
         'check_root_user')
             error_msg="This script must be run as root!"
         ;;
-        'parse_params')
+        'check_params')
             error_msg="Terminating..."
             exit_status=${1}
         ;;
