@@ -46,16 +46,8 @@ parse_params() {
                 break
             ;;
         esac
-        check_conflicting_bootstrap_params
+        check_conflicting_params
     done
     ! (( $# )) || { eval ${USAGE} >&2 && exit 1; }
-}
-
-needed_binaries() {
-    echo "getopt"
-}
-
-unset_parameters_module() {
-    unset -f check_conflicting_bootstrap_params parse_bootstrap_params \
-        needed_binaries unset_parameters_module
+    unset -f check_conflicting_params parse_params
 }
