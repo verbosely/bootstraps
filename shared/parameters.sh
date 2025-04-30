@@ -1,6 +1,9 @@
+# Copyright © 2025 Verbosely.
+# All rights reserved.
+
 . "$(dirname ${BASH_SOURCE[0]})/notifications.sh"
 
-check_conflicting_bootstrap_params() {
+check_conflicting_params() {
     local conflicting_opts
     if [ ${REPLACE} ]; then {
         [ ${INSTALL} ] && conflicting_opts="-r|--replace, -i|--install"
@@ -11,7 +14,7 @@ check_conflicting_bootstrap_params() {
     [ -z "${conflicting_opts}" ] || terminate "${conflicting_opts}"
 }
 
-parse_bootstrap_params() {
+parse_params() {
     local temp
     local -r USAGE=${!#}
     temp=$(getopt -o 'hipr' -l 'help,install,purge,replace' \
