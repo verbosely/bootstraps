@@ -1,73 +1,59 @@
 #!/usr/bin/env bash
-#
-# Author: Zachary Flohr
 
-readonly LLVM_VERSION=18
-declare -ar LLVM_PACKAGES=(clang lldb lld)
+# Copyright © 2025 Verbosely.
+# All rights reserved.
 
 usage() {
     cat <<- USAGE
-Usage: ./$(basename "${0}") [OPTION...]
-    
-Summary:
-    Purge and/or install LLVM packages for Debian-based Linux.
+		Usage: ./$(basename "${0}") [OPTION...]
 
-    The following LLVM tools will be purged and/or installed:
-    clang: an "LLVM native" C/C++/Objective-C compiler
-    lldb: a C/C++/Objective-C debugger
-    lld: the LLVM linker
+		Summary:
+		    Purge and/or install LLVM packages for Debian-based Linux.
 
-    Refer here for more info: https://llvm.org
+		    The following LLVM tools will be purged and/or installed:
+		    clang: an "LLVM native" C/C++/Objective-C compiler
+		    lldb: a C/C++/Objective-C debugger
+		    lld: the LLVM linker
 
-Package management options:
-    -p | --purge    purge all existing LLVM packages
-    -i | --install  install LLVM packages for the version specified in
-                    the shell parameter LLVM_VERSION (=${LLVM_VERSION})
-                    located at the top of the script
-    -r | --replace  purge all existing LLVM packages, then install the
-                    version specified in the shell parameter
-                    LLVM_VERSION (=${LLVM_VERSION}); equivalent to
-                    running "./$(basename "${0}") -pi" (default)
+		    Refer here for more info: https://llvm.org
 
-Other options:
-    -h | --help     display this help text, and exit
-USAGE
+		Package management options:
+		    -p | --purge    purge all existing LLVM packages
+		    -i | --install  install LLVM packages for the current stable version
+		    -r | --replace  purge all existing LLVM packages, then install the
+		                    current stable version; equivalent to running
+		                    "./$(basename "${0}") -pi" (default)
+
+		Other options:
+		    -h | --help     display this help text, and exit
+	USAGE
+    unset -f usage
 }
 
 needed_binaries() {
-    echo "apt-get awk dpkg gpg grep lsb_release sed wget"
-}
-
-check_binaries() {
-    local -a missing_binaries=()
-    local -ar NEEDED_BINARIES=($*)
-    which which &> /dev/null || terminate "which"
-    for binary in "${NEEDED_BINARIES[@]}"; do
-        which ${binary} &> /dev/null || missing_binaries+=($binary)
-    done
-    ! (( ${#missing_binaries[*]} )) || terminate "${missing_binaries[*]}"
-}
-
-check_root_user() {
-    ! (( ${EUID} )) || terminate
+    echo "apt-get awk dpkg getopt gpg grep lsb_release sed wget"
+    unset -f needed_binaries
 }
 
 define_constants() {
-    readonly ARCH=$(dpkg --print-architecture)
-    readonly BASE_URL="https://apt.llvm.org"
-    readonly PPA_DIR="/etc/apt/sources.list.d/"
-    readonly GPG_DIR="/usr/share/keyrings/"
-    readonly GPG_PATH="/llvm-snapshot.gpg.key"
-    readonly LLVM_GPG_BASENAME="llvm.gpg"
+    declare -gr STABLE_VERSION=18
+    declare -agr LLVM_PACKAGES=(clang lldb lld)
+    declare -gr ARCH=$(dpkg --print-architecture)
+    declare -gr BASE_URL="https://apt.llvm.org"
+    declare -gr PPA_DIR="/etc/apt/sources.list.d/"
+    declare -gr GPG_DIR="/usr/share/keyrings/"
+    declare -gr GPG_PATH="/llvm-snapshot.gpg.key"
+    declare -gr LLVM_GPG_BASENAME="llvm.gpg"
     [[ $(lsb_release --codename) =~ [[:blank:]]([[:alpha:]]+)$ ]]
-    readonly CODENAME="${BASH_REMATCH[1]}"
-    readonly LLVM_SOURCE_FILE="llvm.list"
-    readonly TYPE="deb"
-    readonly OPTIONS="[arch=${ARCH} signed-by=${GPG_DIR}${LLVM_GPG_BASENAME}]"
-    readonly URI="${BASE_URL}/${CODENAME}/"
-    readonly SUITE="llvm-toolchain-${CODENAME}-${LLVM_VERSION}"
-    readonly COMPONENTS="main"
-    readonly REPO="${TYPE} ${OPTIONS} ${URI} ${SUITE} ${COMPONENTS}"
+    declare -gr CODENAME="${BASH_REMATCH[1]}"
+    declare -gr LLVM_SOURCE_FILE="llvm.list"
+    declare -gr TYPE="deb"
+    declare -gr OPTIONS="[arch=${ARCH} signed-by=${GPG_DIR}${LLVM_GPG_BASENAME}]"
+    declare -gr URI="${BASE_URL}/${CODENAME}/"
+    declare -gr SUITE="llvm-toolchain-${CODENAME}-${STABLE_VERSION}"
+    declare -gr COMPONENTS="main"
+    declare -gr REPO="${TYPE} ${OPTIONS} ${URI} ${SUITE} ${COMPONENTS}"
+    unset -f define_constants
 }
 
 download_public_key() {
