@@ -1,10 +1,14 @@
-# Author: Zachary Flohr
-#
-# Functions for printing terminal-dependent messages and for shell
-# exiting.
+# Copyright © 2025 Verbosely.
+# All rights reserved.
+
+# Functions for printing notifications and for exiting the shell.
 
 ########################################################################
 # Print a colorized message to stdout or stderr.
+# 
+# Screen operations are performed by manipulating the terminfo database
+# via terminal-independent ncurses routines.
+#
 # Arguments:
 #   1: An integer, which indicates to which data stream to send the
 #      message: zero for stdout, non-zero for stderr.
@@ -12,9 +16,11 @@
 #      an integer. If an integer, it will be the argument to the
 #      "setaf" terminal capability. 
 #   3: A message to print.
+#
 # Outputs:
 #   Writes $3 to stdout if $1 is zero.
 #   Writes $3 to stderr if $1 is non-zero.
+#
 # Returns:
 #   0
 ########################################################################
@@ -55,13 +61,13 @@ terminate() {
             error_msg="You must install the following tools "
             error_msg+="to run this script: ${1}"
         ;;
-        'check_conflicting_bootstrap_params')
+        'check_conflicting_params')
             error_msg="Illegal combination of options: ${1}"
         ;;
         'check_root_user')
             error_msg="This script must be run as root!"
         ;;
-        'parse_bootstrap_params')
+        'parse_params')
             error_msg="Terminating..."
             exit_status=${1}
         ;;
