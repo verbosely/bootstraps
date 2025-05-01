@@ -59,8 +59,8 @@ define_constants() {
 download_public_key() {
     wget --quiet --output-document="${GPG_DIR}${LLVM_GPG_BASENAME}" \
             ${BASE_URL}${GPG_PATH} &&
-        cat ${GPG_DIR}${LLVM_GPG_BASENAME} \
-            | gpg --yes --output "${GPG_DIR}${LLVM_GPG_BASENAME}" --dearmor &&
+        cat ${GPG_DIR}${LLVM_GPG_BASENAME} |
+            gpg --yes --output "${GPG_DIR}${LLVM_GPG_BASENAME}" --dearmor &&
         chmod 0644 ${GPG_DIR}${LLVM_GPG_BASENAME} &&
         print_public_key_progress "no key" "${BASE_URL}${GPG_PATH}" \
             "${GPG_DIR}" ||
@@ -91,8 +91,8 @@ apt_get() {
 }
 
 install_llvm() {
-    local -ar INSTALL_PKGS=($(echo "${LLVM_PACKAGES[@]}" \
-        | sed --regexp-extended "s/([a-z]+)/\1-${STABLE_VERSION}/g"))
+    local -ar INSTALL_PKGS=($(echo "${LLVM_PACKAGES[@]}" |
+        sed --regexp-extended "s/([a-z]+)/\1-${STABLE_VERSION}/g"))
     if [ -f "${GPG_DIR}${LLVM_GPG_BASENAME}" ]; then
         print_public_key_progress "key found" "${GPG_DIR}"
     else
@@ -112,10 +112,11 @@ install_llvm() {
 
 purge_llvm() {
     local regexp='-[[:digit:]]+[[:blank:]]+install$|'
-    regexp=$(echo "${LLVM_PACKAGES[*]}" \
-        | sed --regexp-extended "s/([a-z]+)/^\1${regexp}/g" | sed 's/ //g')
-    local -ar PURGE_PKGS=($(dpkg --get-selections | \
-        grep --perl-regexp --only-matching "${regexp}" | awk '{ print $1 }'))
+    regexp=$(echo "${LLVM_PACKAGES[*]}" |
+        sed --regexp-extended "s/([a-z]+) ?/^\1${regexp}/g")
+    local -ar PURGE_PKGS=($(dpkg --get-selections |
+        grep --extended-regexp --only-matching "${regexp}" |
+        awk '{ print $1 }'))
     [ -f "${PPA_DIR}${LLVM_SOURCE_FILE}" ] &&
         rm ${PPA_DIR}${LLVM_SOURCE_FILE} &&
         print_source_list_progress "remove source" \
