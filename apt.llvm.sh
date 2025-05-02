@@ -3,17 +3,24 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
+# This program purges and/or installs LLVM packages via APT for
+# Debian-based Linux. During installation, the LLVM source for
+# Debian-based packages and the OpenPGP public key are added to
+# /etc/apt/sources.list.d/ and /usr/share/keyrings/ directories,
+# respectively, if they are not already located there. During purging,
+# the LLVM source and public key are removed, and APT storage areas
+# (/var/cache/apt/archives/ and /var/lib/apt/lists/) are cleaned of
+# obsolete files.
+
 usage() {
     cat <<- USAGE
 		Usage: ./$(basename "${0}") [OPTION...]
 
 		Summary:
-		    Purge and/or install LLVM packages for Debian-based Linux.
+		    Purge and/or install LLVM packages via APT for Debian-based Linux.
 
-		    The following LLVM tools will be purged and/or installed:
+		    The following LLVM packages will be purged and/or installed:
 		    clang: an "LLVM native" C/C++/Objective-C compiler
-		    lldb: a C/C++/Objective-C debugger
-		    lld: the LLVM linker
 
 		    Refer here for more info: https://llvm.org
 
