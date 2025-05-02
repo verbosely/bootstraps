@@ -85,6 +85,8 @@ apt_get() {
             apt-get --quiet --yes purge "${PURGE_PKGS[@]}"
             print_apt_progress "autoremove"; apt-get --quiet --yes autoremove
             print_apt_progress "autoclean"; apt-get --quiet --yes autoclean
+            print_apt_progress "update"
+            apt-get --quiet update || terminate "update" $?
         ;;
     esac
 }
