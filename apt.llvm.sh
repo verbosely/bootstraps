@@ -31,7 +31,7 @@ usage() {
 }
 
 needed_binaries() {
-    echo "apt-get awk dpkg getopt gpg grep lsb_release sed wget"
+    echo "apt-get dpkg getopt gpg grep lsb_release sed wget"
     unset -f needed_binaries
 }
 
@@ -111,12 +111,10 @@ install_llvm() {
 }
 
 purge_llvm() {
-    local regexp='-[[:digit:]]+[[:blank:]]+install$|'
-    regexp=$(echo "${LLVM_PACKAGES[*]}" |
-        sed --regexp-extended "s/([a-z]+) ?/^\1${regexp}/g")
+    local -r REGEXP=$(IFS='|'
+        echo "^((${LLVM_PACKAGES[*]})-[[:digit:]]+)[[:blank:]]+install$")
     local -ar PURGE_PKGS=($(dpkg --get-selections |
-        grep --extended-regexp --only-matching "${regexp}" |
-        awk '{ print $1 }'))
+        sed --quiet --regexp-extended "s/${REGEXP}/\1/p"))
     [ -f "${PPA_DIR}${LLVM_SOURCE_FILE}" ] &&
         rm ${PPA_DIR}${LLVM_SOURCE_FILE} &&
         print_source_list_progress "remove source" \
