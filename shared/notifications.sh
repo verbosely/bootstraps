@@ -206,3 +206,14 @@ print_build_progress() {
     esac
     print_message 0 "cyan" "${progress_msg}"
 }
+
+print_program_lifecycle() {
+    case "${1}" in
+        'start')
+            print_message 0 "blue" "Running $(basename "${2}")..."
+        ;;
+        'end')
+            print_message 0 "blue" "$(basename "${2}") completed."
+        ;;
+    esac
+}
