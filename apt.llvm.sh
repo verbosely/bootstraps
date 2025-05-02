@@ -91,8 +91,7 @@ apt_get() {
 }
 
 install_llvm() {
-    local -ar INSTALL_PKGS=($(echo "${LLVM_PACKAGES[@]}" |
-        sed --regexp-extended "s/([a-z]+)/\1-${STABLE_VERSION}/g"))
+    local -ar INSTALL_PKGS=($(echo "${LLVM_PACKAGES[@]/%/-${STABLE_VERSION}}"))
     if [ -f "${GPG_DIR}${LLVM_GPG_BASENAME}" ]; then
         print_public_key_progress "key found" "${GPG_DIR}"
     else
