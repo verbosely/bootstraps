@@ -77,8 +77,7 @@ apt_get() {
             print_apt_progress "update"
             apt-get --quiet update || terminate "update" $?
             print_apt_progress "install" "${INSTALL_PKGS[*]}"
-            apt-get --quiet --yes install "${INSTALL_PKGS[@]}" ||
-                terminate "install" $?
+            apt-get --yes install "${INSTALL_PKGS[@]}" || terminate "install" $?
             print_apt_progress "autoremove"; apt-get --quiet --yes autoremove
         ;;
         'purge_llvm')
