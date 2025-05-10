@@ -134,9 +134,8 @@ purge_llvm() {
 
 main() {
     . "$(dirname ${BASH_SOURCE[0]})/shared/checks.sh"
-    print_program_lifecycle "start" "${0}"
-    check_binaries $(needed_binaries) ; check_params $* "usage"
-    check_root_user; define_constants
+    print_program_lifecycle "start" "${0}" ; check_binaries $(needed_binaries)
+    check_params $* "usage" ; check_root_user; define_constants
     if [ ${INSTALL} ]; then
         [ -z ${PURGE} ] && install_llvm || { purge_llvm && install_llvm; }
     else
