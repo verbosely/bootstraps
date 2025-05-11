@@ -19,8 +19,11 @@ usage() {
 		Summary:
 		    Purge and/or install LLVM packages via APT for Debian-based Linux.
 
-		    The following LLVM packages will be purged and/or installed:
+		    The following LLVM packages and their dependencies will be purged
+		    and/or installed:
+
 		    clang: an "LLVM native" C/C++/Objective-C compiler
+		    llvm: modular compiler and toolchain technologies
 
 		    Refer here for more info: https://llvm.org
 
@@ -44,7 +47,7 @@ needed_binaries() {
 
 define_constants() {
     declare -gr STABLE_VERSION=19
-    declare -agr LLVM_PACKAGES=(clang)
+    declare -agr LLVM_PACKAGES=(clang llvm)
     declare -gr ARCH=$(dpkg --print-architecture)
     declare -gr BASE_URL="https://apt.llvm.org"
     declare -gr PPA_DIR="/etc/apt/sources.list.d/"
