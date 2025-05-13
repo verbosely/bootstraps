@@ -66,5 +66,7 @@ check_params() {
         check_conflicting_params
     done
     ! (( $# )) || { eval ${USAGE} >&2 && exit 1; }
+    [ -z "${INSTALL}" -a -z "${PURGE}" -a -z "${REPLACE}" ] &&
+        declare -gr REPLACE="yes"
     unset -f check_conflicting_params check_params
 }
