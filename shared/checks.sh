@@ -47,15 +47,15 @@ check_params() {
                 exit 0
             ;;
             '-i'|'--install')
-                [ -z ${INSTALL} ] && readonly INSTALL="yes"
+                [ -z "${INSTALL}" ] && declare -gr INSTALL="yes"
                 shift
             ;;
             '-p'|'--purge')
-                [ -z ${PURGE} ] && readonly PURGE="yes"
+                [ -z "${PURGE}" ] && declare -gr PURGE="yes"
                 shift
             ;;
             '-r'|'--replace')
-                [ -z ${REPLACE} ] && readonly REPLACE="yes"
+                [ -z "${REPLACE}" ] && declare -gr REPLACE="yes"
                 shift
             ;;
             '--')
