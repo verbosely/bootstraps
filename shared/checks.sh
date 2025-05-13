@@ -33,6 +33,7 @@ check_conflicting_params() {
 check_params() {
     local temp
     local -r USAGE=${!#}
+    check_binaries getopt
     temp=$(getopt -o 'hipr' -l 'help,install,purge,replace' \
         -n $(basename "${0}") -- "${@:1:$#-1}")
     local -i getopt_exit_status=$?
