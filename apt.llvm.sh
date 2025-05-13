@@ -41,28 +41,33 @@ usage() {
 }
 
 needed_binaries() {
-    echo "apt-get dpkg getopt gpg grep lsb_release sed wget"
+    echo "apt-get dpkg"
+    [ -n "${INSTALL}" -o -n "${REPLACE}" ] && echo "gpg grep lsb_release wget"
+    [ -n "${PURGE}" -o -n "${REPLACE}" ] && echo "sed"
     unset -f needed_binaries
 }
 
 define_constants() {
-    declare -gr STABLE_VERSION=19
     declare -agr LLVM_PACKAGES=(clang llvm)
-    declare -gr ARCH=$(dpkg --print-architecture)
-    declare -gr BASE_URL="https://apt.llvm.org"
-    declare -gr PPA_DIR="/etc/apt/sources.list.d/"
     declare -gr GPG_DIR="/usr/share/keyrings/"
-    declare -gr GPG_PATH="/llvm-snapshot.gpg.key"
     declare -gr LLVM_GPG_BASENAME="llvm.gpg"
-    [[ $(lsb_release --codename) =~ [[:blank:]]([[:alpha:]]+)$ ]]
-    declare -gr CODENAME="${BASH_REMATCH[1]}"
+    declare -gr PPA_DIR="/etc/apt/sources.list.d/"
     declare -gr LLVM_SOURCE_FILE="llvm.list"
-    declare -gr TYPE="deb"
-    declare -gr OPTIONS="[arch=${ARCH} signed-by=${GPG_DIR}${LLVM_GPG_BASENAME}]"
-    declare -gr URI="${BASE_URL}/${CODENAME}/"
-    declare -gr SUITE="llvm-toolchain-${CODENAME}-${STABLE_VERSION}"
-    declare -gr COMPONENTS="main"
-    declare -gr REPO="${TYPE} ${OPTIONS} ${URI} ${SUITE} ${COMPONENTS}"
+    [ -n "${INSTALL}" -o -n "${REPLACE}" ] && {
+        declare -gr STABLE_VERSION=19
+        declare -gr TYPE="deb"
+        declare -gr ARCH=$(dpkg --print-architecture)
+        declare -gr OPTIONS="\
+            [arch=${ARCH} signed-by=${GPG_DIR}${LLVM_GPG_BASENAME}]"
+        declare -gr BASE_URL="https://apt.llvm.org"
+        [[ $(lsb_release --codename) =~ [[:blank:]]([[:alpha:]]+)$ ]]
+        declare -gr CODENAME="${BASH_REMATCH[1]}"
+        declare -gr URI="${BASE_URL}/${CODENAME}/"
+        declare -gr SUITE="llvm-toolchain-${CODENAME}-${STABLE_VERSION}"
+        declare -gr COMPONENTS="main"
+        declare -gr REPO="${TYPE} ${OPTIONS} ${URI} ${SUITE} ${COMPONENTS}"
+        declare -gr GPG_PATH="/llvm-snapshot.gpg.key"
+    }
     unset -f define_constants
 }
 
