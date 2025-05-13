@@ -10,13 +10,13 @@ check_root_user() {
 
 check_binaries() {
     local -a missing_binaries=()
-    local -ar NEEDED_BINARIES=($*)
     which which &> /dev/null || terminate "which"
-    for binary in "${NEEDED_BINARIES[@]}"; do
-        which ${binary} &> /dev/null || missing_binaries+=($binary)
+    for (( i=1; $# + 1 - i; i++ )); do
+        [[ $i -eq $# ]] && [[ ${!i} = u ]] && continue
+        which ${!i} &> /dev/null || missing_binaries+=(${!i})
     done
     ! (( ${#missing_binaries[*]} )) || terminate "${missing_binaries[*]}"
-    unset -f check_binaries
+    [[ ${!#} = u ]] && unset -f check_binaries
 }
 
 check_conflicting_params() {
