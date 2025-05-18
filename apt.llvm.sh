@@ -14,7 +14,7 @@
 
 usage() {
     cat <<- USAGE
-		Usage: ./$(basename "${0}") [OPTION...]
+		Usage: ./$(basename "${0}") [OPTION]...
 
 		Summary:
 		    Purge and/or install LLVM packages via APT for Debian-based Linux.
@@ -28,14 +28,23 @@ usage() {
 		    Refer here for more info: https://llvm.org
 
 		Package management options:
-		    -p | --purge    purge all existing LLVM packages
-		    -i | --install  install LLVM packages for the current stable version
-		    -r | --replace  purge all existing LLVM packages, then install the
-		                    current stable version; equivalent to running
-		                    "./$(basename "${0}") -pi" (default)
+		    -p, --purge-all
+		            purge all existing LLVM packages
+		    -P[version], --purge-all-except[=version]
+		            purge all existing LLVM packages except those of the given
+		            version; use multiple times to specify multiple versions to
+		            keep; when a version is not specified, the highest version
+		            is kept
+		    -i, --install
+		            install LLVM packages for the current stable version
+		    -r, --replace
+		            purge all existing LLVM packages, then install the current
+		            stable version; equivalent to running
+		            "./$(basename "${0}") -pi" (default)
 
 		Other options:
-		    -h | --help     display this help text, and exit
+		    -h | --help
+		            display this help text, and exit
 	USAGE
     unset -f usage
 }
