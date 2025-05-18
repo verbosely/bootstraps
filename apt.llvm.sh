@@ -158,9 +158,9 @@ unset_functions() {
 
 main() {
     . "$(dirname ${BASH_SOURCE[0]})/shared/checks.sh"
-    print_program_lifecycle "start" "${0}" ; check_params $* "usage"
-    unset_functions ; check_binaries $(needed_binaries) u
-    check_root_user ; define_constants
+    check_params $* "usage" ; check_root_user
+    check_binaries $(needed_binaries) u
+    print_program_lifecycle "start" "${0}" ; unset_functions ; define_constants
     [ -n "${INSTALL}" -a -n "${PURGE}" -o -n "${REPLACE}" ] &&
         purge_llvm && install_llvm
     [ -n "${INSTALL}" -a -z "${PURGE}" ] && install_llvm
