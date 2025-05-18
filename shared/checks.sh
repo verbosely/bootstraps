@@ -24,22 +24,31 @@ check_conflicting_params() {
     if [ ${REPLACE} ]; then {
         [ ${INSTALL} ] && conflicting_opts="-r|--replace, -i|--install"
     } || {
-        [ -z ${PURGE} ] || conflicting_opts="-r|--replace, -p|--purge"
+        [ -z ${PURGE} ] || conflicting_opts="-r|--replace, -p|--purge-all"
     }
     fi
     [ -z "${conflicting_opts}" ] || terminate "${conflicting_opts}"
 }
 
+check_param_args() {
+    case "$1" in
+        'pax')
+            [[ "$2" =~ ^([[:digit:]]+\.)*[[:digit:]]+$ ]] &&
+                keep_versions+=("$2") || terminate "$2"
+        ;;
+    esac
+}
+
 check_params() {
-    local temp
-    local -r USAGE=${!#}
+    local temp ; local -a keep_versions ; local -r USAGE=${!#}
     check_binaries getopt
-    temp=$(getopt -o 'hipr' -l 'help,install,purge,replace' \
-        -n $(basename "${0}") -- "${@:1:$#-1}")
+    temp=$(getopt --options 'hipP::r' \
+        --longoptions 'help,install,purge-all,purge-all-except::,replace' \
+        --name $(basename "${0}") -- "${@:1:$#-1}")
     local -i getopt_exit_status=$?
+    echo $temp
     (( ${getopt_exit_status} )) && terminate ${getopt_exit_status}
-    eval set -- "${temp}"
-    unset temp
+    eval set -- "${temp}" ; unset temp
     while true; do
         case "$1" in
             '-h'|'--help')
@@ -50,8 +59,15 @@ check_params() {
                 [ -z "${INSTALL}" ] && declare -gr INSTALL="yes"
                 shift
             ;;
-            '-p'|'--purge')
+            '-p'|'--purge-all')
                 [ -z "${PURGE}" ] && declare -gr PURGE="yes"
+                shift
+            ;;
+            '-P'|'--purge-all-except')
+                [ -z "${PAX}" ] && declare -gr PAX="yes"
+                shift
+                [ -z "$1" ] && keep_versions+=("-") ||
+                    check_param_args "pax" "$1"
                 shift
             ;;
             '-r'|'--replace')
@@ -66,7 +82,9 @@ check_params() {
         check_conflicting_params
     done
     ! (( $# )) || { eval ${USAGE} >&2 && exit 1; }
+    declare -agr KEEP_VERSIONS=($(
+        printf "%s\n" "${keep_versions[@]}" | sort --numeric-sort --unique))
     [ -z "${INSTALL}" -a -z "${PURGE}" -a -z "${REPLACE}" ] &&
         declare -gr REPLACE="yes"
-    unset -f check_conflicting_params check_params
+    unset -f check_conflicting_params check_param_args check_params
 }
