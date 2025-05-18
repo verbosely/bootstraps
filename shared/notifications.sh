@@ -86,6 +86,9 @@ terminate() {
             error_msg="Terminating..."
             exit_status=${1}
         ;;
+        'check_param_args')
+            error_msg="Invalid version: '${1}'"
+        ;;
         'download_public_key')
             error_msg="Could not download the OpenPGP public key from ${1}"
             error_msg+="\nTerminating..."
