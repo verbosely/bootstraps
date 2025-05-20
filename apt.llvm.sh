@@ -121,12 +121,16 @@ apt_get() {
 }
 
 install_llvm() {
-    local -ar INSTALL_PKGS=($(echo "${LLVM_PACKAGES[@]/%/-${STABLE_VERSION}}"))
-    if [ -f "${GPG_DIR}${LLVM_GPG_BASENAME}" ]; then
-        print_public_key_progress "key found" "${GPG_DIR}"
-    else
+    local -a INSTALL_PKGS=($(
+        for ver in ${INSTALL_VERSIONS[@]}; do
+            [ -n "${absent}" -a "${ver}" = "${STABLE_VERSION}" ] && continue
+            [ "${ver}" = "-" ] && ver="${STABLE_VERSION}" && absent="yes"
+            echo "${LLVM_PACKAGES[@]/%/-${ver}}"
+        done))
+    echo ${INSTALL_PKGS[@]}
+    [ -f "${GPG_DIR}${LLVM_GPG_BASENAME}" ] &&
+        print_public_key_progress "key found" "${GPG_DIR}" ||
         download_public_key
-    fi
     grep --quiet --no-messages --fixed-strings "${REPO}" \
             "${PPA_DIR}${LLVM_SOURCE_FILE}" &&
         print_source_list_progress "source found" \
