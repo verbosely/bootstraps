@@ -33,14 +33,19 @@ usage() {
 		    -P[version], --purge-all-except[=version]
 		            purge all existing LLVM packages except those of the given
 		            version; use multiple times to specify multiple versions to
-		            keep; when a version is not specified, the highest version
-		            is kept
-		    -i, --install
-		            install LLVM packages for the current stable version
-		    -r, --replace
-		            purge all existing LLVM packages, then install the current
-		            stable version; equivalent to running
-		            "./$(basename "${0}") -pi" (default)
+		            keep; when a version is not specified, keep the highest
+		            version found
+		    -i[version], --install[=version]
+		            install LLVM packages for the given version, or for the
+		            current stable version if no version is specified; use
+		            multiple times to specify multiple versions to install
+		    -r[version], --replace-all-with[=version]
+		            install the given version of LLVM packages, then purge all
+		            other existing versions; use multiple times to specify
+		            multiple versions to install and to keep after purging; when
+		            a version is not specified, install the current stable
+		            version; equivalent to running
+		            "./$(basename "${0}") -i[version_a] -P[version_a]" (default)
 
 		Other options:
 		    -h | --help
