@@ -20,35 +20,60 @@ check_binaries() {
 }
 
 check_conflicting_params() {
-    local conflicting_opts
-    if [ ${REPLACE} ]; then {
-        [ ${INSTALL} ] && conflicting_opts="-r|--replace, -i|--install"
-    } || {
-        [ -z ${PURGE} ] || conflicting_opts="-r|--replace, -p|--purge-all"
-    }
-    fi
-    [ -z "${conflicting_opts}" ] || terminate "${conflicting_opts}"
+    local illegal
+    [ -n "${PURGE}" -a -n "${PAX}" ] && {
+        illegal="-p|--purge-all, -P[version]|--purge-all-except[=version]"
+        terminate "${illegal}" ; }
+    [ -n "${REPLACE}" -a -n "${INSTALL}" ] && {
+        illegal="-r[version]|--replace-all-with[=version], "
+        illegal+="-i[version]|--install[=version]"
+        terminate "${illegal}" ; }
+    [ -n "${REPLACE}" -a -n "${PURGE}" ] && {
+        illegal="-r[version]|--replace-all-with[=version], -p|--purge-all"
+        terminate "${illegal}" ; }
+    [ -n "${REPLACE}" -a -n "${PAX}" ] && {
+        illegal="-r[version]|--replace-all-with[=version], "
+        illegal+="-P[version]|--purge-all-except[=version]"
+        terminate "${illegal}" ; }
 }
 
 check_param_args() {
     case "$1" in
-        'pax')
-            [[ "$2" =~ ^([[:digit:]]+\.)*[[:digit:]]+$ ]] &&
-                keep_versions+=("$2") || terminate "$2"
+        'i'|'P'|'r')
+            [[ "$2" =~ ^([[:digit:]]+\.)*[[:digit:]]+$ ]] || terminate "$2"
+        ;;&
+        'i'|'r')
+            install+=("$2")
+        ;;&
+        'P'|'r')
+            keep+=("$2")
         ;;
     esac
 }
 
-check_params() {
-    local temp ; local -a keep_versions ; local -r USAGE=${!#}
-    check_binaries getopt
-    temp=$(getopt --options 'hipP::r' \
-        --longoptions 'help,install,purge-all,purge-all-except::,replace' \
+define_valid_option_params() {
+    temp=$(getopt --options 'hi::pP::r::' \
+        --longoptions 'help,install::,purge-all,purge-all-except::' \
+        --longoptions 'replace-all-with::' \
         --name $(basename "${0}") -- "${@:1:$#-1}")
-    local -i getopt_exit_status=$?
-    echo $temp
+    getopt_exit_status=$?
+    unset -f define_valid_option_params
+}
+
+process_param_args_arrays() {
+    (( ${#keep[@]} )) && declare -agr KEEP_VERSIONS=($(
+        printf "%s\n" "${keep[@]}" | sort --numeric-sort --unique))
+    (( ${#install[@]} )) && declare -agr INSTALL_VERSIONS=($(
+        printf "%s\n" "${install[@]}" | sort --numeric-sort --unique))
+    unset -f process_param_args_arrays
+}
+
+check_params() {
+    local temp ; local -r USAGE="${!#}" ; local -i getopt_exit_status
+    local -a keep install
+    check_binaries "getopt" ; define_valid_option_params $*
     (( ${getopt_exit_status} )) && terminate ${getopt_exit_status}
-    eval set -- "${temp}" ; unset temp
+    eval set -- "${temp}" ; unset temp getopt_exit_status
     while true; do
         case "$1" in
             '-h'|'--help')
