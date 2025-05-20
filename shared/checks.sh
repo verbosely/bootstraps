@@ -81,35 +81,33 @@ check_params() {
                 exit 0
             ;;
             '-i'|'--install')
-                [ -z "${INSTALL}" ] && declare -gr INSTALL="yes"
+                [ -z "${INSTALL}" ] && declare -gr INSTALL="yes" ; shift
+                [ -z "$1" ] && install+=("-") || check_param_args "i" "$1"
                 shift
             ;;
             '-p'|'--purge-all')
-                [ -z "${PURGE}" ] && declare -gr PURGE="yes"
-                shift
+                [ -z "${PURGE}" ] && declare -gr PURGE="yes" ; shift
             ;;
             '-P'|'--purge-all-except')
-                [ -z "${PAX}" ] && declare -gr PAX="yes"
-                shift
-                [ -z "$1" ] && keep_versions+=("-") ||
-                    check_param_args "pax" "$1"
+                [ -z "${PAX}" ] && declare -gr PAX="yes" ; shift
+                [ -z "$1" ] && keep+=("-") || check_param_args "P" "$1"
                 shift
             ;;
-            '-r'|'--replace')
-                [ -z "${REPLACE}" ] && declare -gr REPLACE="yes"
+            '-r'|'--replace-all-with')
+                [ -z "${REPLACE}" ] && declare -gr REPLACE="yes" ; shift
+                [ -z "$1" ] && install+=("-") && keep+=("+") ||
+                    check_param_args "r" "$1"
                 shift
             ;;
             '--')
-                shift
-                break
+                shift ; break
             ;;
         esac
         check_conflicting_params
     done
-    ! (( $# )) || { eval ${USAGE} >&2 && exit 1; }
-    declare -agr KEEP_VERSIONS=($(
-        printf "%s\n" "${keep_versions[@]}" | sort --numeric-sort --unique))
-    [ -z "${INSTALL}" -a -z "${PURGE}" -a -z "${REPLACE}" ] &&
-        declare -gr REPLACE="yes"
+    (( $# )) && { eval ${USAGE} >&2 && exit 1; }
+    [ -z "${INSTALL}" -a -z "${PURGE}" -a -z "${PAX}" -a -z "${REPLACE}" ] &&
+        declare -gr REPLACE="yes" && keep+=("+") && install+=("-")
+    process_param_args_arrays
     unset -f check_conflicting_params check_param_args check_params
 }
