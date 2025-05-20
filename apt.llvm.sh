@@ -159,21 +159,21 @@ purge_llvm() {
 }
 
 unset_functions() {
-    [ -n "${INSTALL}" -a -z "${PURGE}" ] && unset -f purge_llvm
-    [ -z "${INSTALL}" -a -n "${PURGE}" ] &&
+    [ -n "${INSTALL}" -a -z "${PAX}" -a -z "${PURGE}" ] && unset -f purge_llvm
+    [ -z "${INSTALL}" -a -z "${REPLACE}" ] &&
         unset -f download_public_key install_llvm
     unset -f unset_functions
 }
 
 main() {
     . "$(dirname ${BASH_SOURCE[0]})/shared/checks.sh"
-    check_params $* "usage" ; check_root_user
+    check_params $* "usage" ; declare -p KEEP_VERSIONS INSTALL_VERSIONS ; check_root_user
     check_binaries $(needed_binaries) u
     print_program_lifecycle "start" "${0}" ; unset_functions ; define_constants
-    [ -n "${INSTALL}" -a -n "${PURGE}" -o -n "${REPLACE}" ] &&
-        purge_llvm && install_llvm
-    [ -n "${INSTALL}" -a -z "${PURGE}" ] && install_llvm
-    [ -z "${INSTALL}" -a -n "${PURGE}" ] && purge_llvm
+    [ -n "${INSTALL}" -a -z "${PAX}" -a -z "${PURGE}" ] && install_llvm
+    #[ -n "${INSTALL}" -a -n "${PURGE}" -o -n "${REPLACE}" ] &&
+    #    purge_llvm && install_llvm
+    #[ -z "${INSTALL}" -a -n "${PURGE}" ] && purge_llvm
     print_program_lifecycle "end" "${0}"
 }
 
