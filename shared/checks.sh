@@ -9,7 +9,7 @@ check_root_user() {
 }
 
 check_binaries() {
-    local -a missing_binaries=()
+    local -a missing_binaries=() ; local -i i
     which which &> /dev/null || terminate "which"
     for (( i=1; $# + 1 - i; i++ )); do
         [[ $i -eq $# ]] && [[ ${!i} = u ]] && continue
