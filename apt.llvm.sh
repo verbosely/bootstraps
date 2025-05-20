@@ -57,18 +57,18 @@ usage() {
 needed_binaries() {
     echo "apt-get dpkg"
     [ -n "${INSTALL}" -o -n "${REPLACE}" ] && echo "gpg grep lsb_release wget"
-    [ -n "${PURGE}" -o -n "${REPLACE}" ] && echo "sed"
+    [ -n "${PAX}" -o -n "${PURGE}" -o -n "${REPLACE}" ] && echo "sed"
     unset -f needed_binaries
 }
 
 define_constants() {
+    declare -gr STABLE_VERSION=19
     declare -agr LLVM_PACKAGES=(clang llvm)
     declare -gr GPG_DIR="/usr/share/keyrings/"
     declare -gr LLVM_GPG_BASENAME="llvm.gpg"
     declare -gr PPA_DIR="/etc/apt/sources.list.d/"
     declare -gr LLVM_SOURCE_FILE="llvm.list"
     [ -n "${INSTALL}" -o -n "${REPLACE}" ] && {
-        declare -gr STABLE_VERSION=19
         declare -gr TYPE="deb"
         declare -gr ARCH=$(dpkg --print-architecture)
         declare -gr OPTIONS="\
