@@ -94,8 +94,8 @@ download_public_key() {
         print_public_key_progress "no key" "${BASE_URL}${GPG_PATH}" \
             "${GPG_DIR}" ||
         {
-            local -ir WGET_EXIT_STATUS=$? &&
-            rm ${GPG_DIR}${LLVM_GPG_BASENAME} &&
+            local -ir WGET_EXIT_STATUS=$?
+            rm --force ${GPG_DIR}${LLVM_GPG_BASENAME}
             terminate "${BASE_URL}${GPG_PATH}" "${WGET_EXIT_STATUS}"
         }
 }
