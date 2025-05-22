@@ -3,7 +3,8 @@
 
 . "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
 
-# Functions for printing notifications and for exiting the shell.
+# Functions for crafting messages corresponding to various phases of package
+# management and for writing to standard output and standard error.
 
 ########################################################################
 # Print a colorized message to stdout or stderr.
@@ -219,7 +220,7 @@ print_build_progress() {
         'make test')
             progress_msg="Running Makefile test suite..."
         ;;
-        'make altinstall')
+        'make altinstall'|'make install')
             progress_msg="Installing built files in ${2}"
         ;;
     esac
