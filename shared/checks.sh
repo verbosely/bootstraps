@@ -82,7 +82,7 @@ check_params() {
             ;;
             '-i'|'--install')
                 [ -z "${INSTALL}" ] && declare -gr INSTALL="yes" ; shift
-                [ -z "$1" ] && install+=("-") || check_param_args "i" "$1"
+                [ -z "$1" ] && install+=("stable") || check_param_args "i" "$1"
                 shift
             ;;
             '-p'|'--purge-all')
@@ -90,12 +90,12 @@ check_params() {
             ;;
             '-P'|'--purge-all-except')
                 [ -z "${PAX}" ] && declare -gr PAX="yes" ; shift
-                [ -z "$1" ] && keep+=("-") || check_param_args "P" "$1"
+                [ -z "$1" ] && keep+=("highest") || check_param_args "P" "$1"
                 shift
             ;;
             '-r'|'--replace-all-with')
                 [ -z "${REPLACE}" ] && declare -gr REPLACE="yes" ; shift
-                [ -z "$1" ] && install+=("-") && keep+=("+") ||
+                [ -z "$1" ] && install+=("stable") && keep+=("stable") ||
                     check_param_args "r" "$1"
                 shift
             ;;
