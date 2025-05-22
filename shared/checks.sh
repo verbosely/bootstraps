@@ -123,7 +123,7 @@ check_install_versions() {
         [[ ${response} =~ 2[[:digit:]]{2} ]] || {
             bad_versions+=(${install_versions[i]}) ; bad_indices+=($i) ; }
     done
-    (( ${#bad_versions[@]} )) && print_bad_versions "${bad_versions[@]}"
+    (( ${#bad_versions[@]} )) && print_invalid_versions "${bad_versions[@]}"
     for i in ${bad_indices[@]}; do
         unset install_versions[$i]
     done
