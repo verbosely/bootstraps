@@ -243,3 +243,10 @@ print_program_lifecycle() {
         ;;
     esac
 }
+
+print_bad_versions() {
+    local msg
+    msg="The following versions are not recognized and will not be installed: "
+    msg+="$(add_commas $@)"
+    print_message 0 "yellow" "${msg}"
+}
