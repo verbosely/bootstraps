@@ -3,8 +3,9 @@
 
 . "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
 
-# Functions for crafting messages corresponding to various phases of package
-# management and for writing to standard output and standard error.
+# Functions for crafting messages corresponding to various common phases of
+# Linux package management and for writing to standard output and standard
+# error.
 
 ########################################################################
 # Print a colorized message to stdout or stderr.
