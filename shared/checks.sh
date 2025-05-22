@@ -61,9 +61,9 @@ define_valid_option_params() {
 }
 
 process_param_args_arrays() {
-    (( ${#keep[@]} )) && declare -agr KEEP_VERSIONS=($(
+    (( ${#keep[@]} )) && declare -ag keep_versions=($(
         printf "%s\n" "${keep[@]}" | sort --numeric-sort --unique))
-    (( ${#install[@]} )) && declare -agr INSTALL_VERSIONS=($(
+    (( ${#install[@]} )) && declare -ag install_versions=($(
         printf "%s\n" "${install[@]}" | sort --numeric-sort --unique))
     unset -f process_param_args_arrays
 }
