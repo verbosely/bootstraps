@@ -107,7 +107,24 @@ check_params() {
     done
     (( $# )) && { eval ${USAGE} >&2 && exit 1; }
     [ -z "${INSTALL}" -a -z "${PURGE}" -a -z "${PAX}" -a -z "${REPLACE}" ] &&
-        declare -gr REPLACE="yes" && keep+=("+") && install+=("-")
+        declare -gr REPLACE="yes" && keep+=("stable") && install+=("stable")
     process_param_args_arrays
     unset -f check_conflicting_params check_param_args check_params
+}
+
+check_install_versions() {
+    local -i i response ; local -a bad_versions bad_indices
+    [ "${install_versions[0]}" = "stable" ] && install_versions[0]=$2 &&
+        install_versions=($(printf "%s\n" "${install_versions[@]}" |
+            sort --numeric-sort --unique))
+    for (( i=0; ${#install_versions[@]} - i; i++ )); do
+        response=$(curl --head --output /dev/null --retry 5 --silent \
+            --write-out "%{http_code}\n" "${1}${install_versions[i]}/")
+        [[ ${response} =~ 2[[:digit:]]{2} ]] || {
+            bad_versions+=(${install_versions[i]}) ; bad_indices+=($i) ; }
+    done
+    (( ${#bad_versions[@]} )) && print_bad_versions "${bad_versions[@]}"
+    for i in ${bad_indices[@]}; do
+        unset install_versions[$i]
+    done
 }
