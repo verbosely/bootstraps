@@ -127,4 +127,6 @@ check_install_versions() {
     for i in ${bad_indices[@]}; do
         unset install_versions[$i]
     done
+    declare -agr INSTALL_VERSIONS=(${install_versions[@]})
+    unset install_versions ; unset -f check_install_versions
 }
