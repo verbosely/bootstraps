@@ -135,6 +135,14 @@ terminate() {
     exit ${exit_status}
 }
 
+add_commas() {
+    local -i i ; local str="$1"
+    for (( i=2; $# + 1 - i; i++ )); do
+        str+=", ${!i}"
+    done
+    echo "${str}"
+}
+
 print_apt_progress() {
     local progress_msg="Running apt-get ${1}..."
     case "${1}" in
