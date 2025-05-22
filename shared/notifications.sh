@@ -1,6 +1,8 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
+. "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
+
 # Functions for printing notifications and for exiting the shell.
 
 ########################################################################
@@ -73,7 +75,7 @@ terminate() {
     case "${FUNCNAME[1]}" in
         'check_binaries')
             error_msg="You must install the following tools "
-            error_msg+="to run this script: $(add_commas ${@})"
+            error_msg+="to run this script: $(params_to_csv_string ${@})"
         ;;
         'check_conflicting_params')
             error_msg="Illegal combination of options: ${1}"
@@ -132,14 +134,6 @@ terminate() {
     esac
     print_message 1 "red" "${error_msg}"
     exit ${exit_status}
-}
-
-add_commas() {
-    local -i i ; local str="$1"
-    for (( i=2; $# + 1 - i; i++ )); do
-        str+=", ${!i}"
-    done
-    echo "${str}"
 }
 
 print_apt_progress() {
@@ -246,6 +240,6 @@ print_program_lifecycle() {
 print_invalid_versions() {
     local msg
     msg="The following versions are not recognized and will not be installed: "
-    msg+="$(add_commas $@)"
+    msg+="$(params_to_csv_string $@)"
     print_message 0 "yellow" "${msg}"
 }
