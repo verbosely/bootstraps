@@ -15,7 +15,7 @@ check_binaries() {
         [[ $i -eq $# ]] && [[ ${!i} = u ]] && continue
         which ${!i} &> /dev/null || missing_binaries+=(${!i})
     done
-    ! (( ${#missing_binaries[*]} )) || terminate "${missing_binaries[*]}"
+    ! (( ${#missing_binaries[*]} )) || terminate "${missing_binaries[@]}"
     [[ ${!#} = u ]] && unset -f check_binaries
 }
 

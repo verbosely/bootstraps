@@ -69,12 +69,11 @@ print_message() {
 }
 
 terminate() {
-    local error_msg
-    local -i exit_status=1
+    local error_msg ; local -i exit_status=1
     case "${FUNCNAME[1]}" in
         'check_binaries')
             error_msg="You must install the following tools "
-            error_msg+="to run this script: ${1}"
+            error_msg+="to run this script: $(add_commas ${@})"
         ;;
         'check_conflicting_params')
             error_msg="Illegal combination of options: ${1}"
