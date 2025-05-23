@@ -40,15 +40,18 @@ check_conflicting_params() {
 
 check_param_args() {
     case "$1" in
-        'i'|'P'|'r')
-            [[ "$2" =~ ^([[:digit:]]+\.)*[[:digit:]]+$ ]] || terminate "$2"
+        '-i'|'--install'|'-P'|'--purge-all-except'|'-r'|'--replace-all-with')
+            [[ "$2" =~ ^(([[:digit:]]+\.)*[[:digit:]]+)?$ ]] || terminate "$2"
         ;;&
-        'i'|'r')
-            install+=("$2")
-        ;;&
-        'P'|'r')
-            keep+=("$2")
-        ;;
+        '-i'|'--install')
+            [ -z "$2" ] && install_versions+=("stable") ||
+                install_versions+=("$2");;
+        '-P'|'--purge-all-except')
+            [ -z "$2" ] && keep_versions+=("highest") || keep_versions+=("$2");;
+        '-r'|'--replace-all-with')
+            [ -z "$2" ] && install_versions+=("stable") &&
+                keep_versions+=("stable") ||
+                { install_versions+=("$2") && keep_versions+=("$2") ; };;
     esac
 }
 
@@ -61,73 +64,40 @@ define_valid_option_params() {
     unset -f define_valid_option_params
 }
 
-process_param_args_arrays() {
-    (( ${#keep[@]} )) && declare -ag keep_versions=($(
-        printf "%s\n" "${keep[@]}" | sort --numeric-sort --unique))
-    (( ${#install[@]} )) && declare -ag install_versions=($(
-        printf "%s\n" "${install[@]}" | sort --numeric-sort --unique))
-    unset -f process_param_args_arrays
-}
-
 check_params() {
     local temp ; local -r USAGE="${!#}" ; local -i getopt_exit_status
-    local -a keep install
+    local -a keep_versions install_versions
     check_binaries "getopt" ; define_valid_option_params $*
     (( ${getopt_exit_status} )) && terminate ${getopt_exit_status}
     eval set -- "${temp}" ; unset temp getopt_exit_status
     while true; do
         case "$1" in
             '-h'|'--help')
-                eval ${USAGE}
-                exit 0
-            ;;
+                eval ${USAGE} ; exit 0;;
             '-i'|'--install')
-                [ -z "${INSTALL}" ] && declare -gr INSTALL="yes" ; shift
-                [ -z "$1" ] && install+=("stable") || check_param_args "i" "$1"
-                shift
-            ;;
+                [ -z "${INSTALL}" ] && declare -gr INSTALL="yes";;&
             '-p'|'--purge-all')
-                [ -z "${PURGE}" ] && declare -gr PURGE="yes" ; shift
-            ;;
+                [ -z "${PURGE}" ] && declare -gr PURGE="yes" ; shift;;
             '-P'|'--purge-all-except')
-                [ -z "${PAX}" ] && declare -gr PAX="yes" ; shift
-                [ -z "$1" ] && keep+=("highest") || check_param_args "P" "$1"
-                shift
-            ;;
+                [ -z "${PAX}" ] && declare -gr PAX="yes";;&
             '-r'|'--replace-all-with')
-                [ -z "${REPLACE}" ] && declare -gr REPLACE="yes" ; shift
-                [ -z "$1" ] && install+=("stable") && keep+=("stable") ||
-                    check_param_args "r" "$1"
-                shift
-            ;;
+                [ -z "${REPLACE}" ] && declare -gr REPLACE="yes";;&
+            '-i'|'--install'|'-P'|'--purge-all-except'|\
+                    '-r'|'--replace-all-with')
+                check_param_args "$1" "$2"
+                shift 2;;
             '--')
-                shift ; break
-            ;;
-        esac
-        check_conflicting_params
-    done
-    (( $# )) && { eval ${USAGE} >&2 && exit 1; }
-    [ -z "${INSTALL}" -a -z "${PURGE}" -a -z "${PAX}" -a -z "${REPLACE}" ] &&
-        declare -gr REPLACE="yes" && keep+=("stable") && install+=("stable")
-    process_param_args_arrays
+                shift ; break;;
+        esac ; check_conflicting_params
+    done ; (( $# )) && eval ${USAGE} >&2 && exit 1
+    [ -z "${INSTALL}${PURGE}${PAX}${REPLACE}" ] && declare -gr REPLACE="yes" &&
+        check_param_args "-r"
+    declare -ag keep_versions=($(sort_and_filter "${keep_versions[@]}"))
+    declare -ag install_versions=($(sort_and_filter "${install_versions[@]}"))
     unset -f check_conflicting_params check_param_args check_params
 }
 
-check_install_versions() {
-    local -i i response ; local -a bad_versions bad_indices
-    [ "${install_versions[0]}" = "stable" ] && install_versions[0]=$2 &&
-        install_versions=($(printf "%s\n" "${install_versions[@]}" |
-            sort --numeric-sort --unique))
-    for (( i=0; ${#install_versions[@]} - i; i++ )); do
-        response=$(curl --head --output /dev/null --retry 5 --silent \
-            --write-out "%{http_code}\n" "${1}${install_versions[i]}/")
-        [[ ${response} =~ 2[[:digit:]]{2} ]] || {
-            bad_versions+=(${install_versions[i]}) ; bad_indices+=($i) ; }
-    done
-    (( ${#bad_versions[@]} )) && print_invalid_versions "${bad_versions[@]}"
-    for i in ${bad_indices[@]}; do
-        unset install_versions[$i]
-    done
-    declare -agr INSTALL_VERSIONS=(${install_versions[@]})
-    unset install_versions ; unset -f check_install_versions
+check_duplicate_versions() {
+    [ "${install_versions[0]}" = "stable" ] && install_versions[0]=$1 &&
+        install_versions=($(sort_and_filter "${install_versions[@]}"))
 }
