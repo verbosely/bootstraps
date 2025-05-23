@@ -8,3 +8,7 @@ params_to_csv_string() {
     done
     echo "${str}"
 }
+
+sort_and_filter() {
+    printf "%s\n" "${@}" | sort --numeric-sort --unique
+}
