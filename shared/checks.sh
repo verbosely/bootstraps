@@ -2,6 +2,7 @@
 # All rights reserved.
 
 . "$(dirname ${BASH_SOURCE[0]})/term_output.sh"
+. "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
 
 check_root_user() {
     ! (( ${EUID} )) || terminate
