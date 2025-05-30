@@ -68,7 +68,7 @@ define_constants() {
     declare -gr LLVM_GPG_BASENAME="llvm.gpg"
     declare -gr PPA_DIR="/etc/apt/sources.list.d/"
     declare -gr LLVM_SOURCE_FILE="llvm.list"
-    [ -n "${INSTALL}" -o -n "${REPLACE}" ] && {
+    [ -n "${INSTALL}${REPLACE}" ] && {
         declare -gr TYPE="deb"
         declare -gr ARCH=$(dpkg --print-architecture)
         declare -gr OPTIONS="\
