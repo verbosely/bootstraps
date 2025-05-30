@@ -77,7 +77,7 @@ define_constants() {
         [[ $(lsb_release --codename) =~ [[:blank:]]([[:alpha:]]+)$ ]]
         declare -gr CODENAME="${BASH_REMATCH[1]}"
         declare -gr URI="${BASE_URL}/${CODENAME}/"
-        declare -gr SUITE="llvm-toolchain-${CODENAME}-${STABLE_VERSION}"
+        declare -gr SUITE="llvm-toolchain-${CODENAME}-"
         declare -gr COMPONENTS="main"
         declare -gr REPO="${TYPE} ${OPTIONS} ${URI} ${SUITE} ${COMPONENTS}"
         declare -gr GPG_PATH="/llvm-snapshot.gpg.key"
