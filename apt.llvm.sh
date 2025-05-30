@@ -85,21 +85,6 @@ define_constants() {
     unset -f define_constants
 }
 
-download_public_key() {
-    wget --quiet --output-document="${GPG_DIR}${LLVM_GPG_BASENAME}" \
-            ${BASE_URL}${GPG_PATH} &&
-        cat ${GPG_DIR}${LLVM_GPG_BASENAME} |
-            gpg --yes --output "${GPG_DIR}${LLVM_GPG_BASENAME}" --dearmor &&
-        chmod 0644 ${GPG_DIR}${LLVM_GPG_BASENAME} &&
-        print_public_key_progress "no key" "${BASE_URL}${GPG_PATH}" \
-            "${GPG_DIR}" ||
-        {
-            local -ir WGET_EXIT_STATUS=$?
-            rm --force ${GPG_DIR}${LLVM_GPG_BASENAME}
-            terminate "${BASE_URL}${GPG_PATH}" "${WGET_EXIT_STATUS}"
-        }
-}
-
 apt_get() {
     case "${FUNCNAME[1]}" in
         'install_llvm')

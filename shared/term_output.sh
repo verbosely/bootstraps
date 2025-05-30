@@ -92,10 +92,10 @@ terminate() {
         'check_param_args')
             error_msg="Invalid version: '${1}'"
         ;;
-        'download_public_key')
-            error_msg="Could not download the OpenPGP public key from ${1}"
+        'get_gpg_key')
+            error_msg="The server for ${1} returned a ${2} HTTP response "
+            error_msg+="during an attempt to download the OpenPGP public key."
             error_msg+="\nTerminating..."
-            exit_status=${2}
         ;;
         'download_source')
             error_msg="Could not download ${1} from ${2}"
