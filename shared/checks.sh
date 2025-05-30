@@ -101,3 +101,9 @@ check_duplicate_versions() {
     [ "${install_versions[0]}" = "stable" ] && install_versions[0]=$1 &&
         install_versions=($(sort_and_filter "${install_versions[@]}"))
 }
+
+check_gpg_key() {
+    [ -f "$1" ] &&
+        [ "$(file --brief --mime-type "$1")" = "application/octet-stream" ] &&
+        print_public_key_progress "found" "$(dirname "$1")/"
+}
