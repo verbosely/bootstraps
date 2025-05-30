@@ -240,18 +240,7 @@ print_program_lifecycle() {
 }
 
 print_invalid_versions() {
-    local msg
-    case "${1}" in
-        '4xx')
-            shift
-            msg="The following versions returned 4xx status codes and will not "
-            msg+="be installed: $(params_to_csv_string $@)"
-        ;;
-        '5xx')
-            shift
-            msg="The following versions returned 5xx status codes and will not "
-            msg+="be installed: $(params_to_csv_string $@)"
-        ;;
-    esac
+    local msg="The following versions returned HTTP ${1} responses "
+    msg+="and will not be installed: ${2}"
     print_message 1 "yellow" "${msg}"
 }
