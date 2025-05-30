@@ -189,10 +189,10 @@ print_source_list_progress() {
 print_public_key_progress() {
     local progress_msg
     case "${1}" in
-        'key found')
+        'found')
             progress_msg="Found OpenPGP public key in ${2}"
         ;;
-        'no key')
+        'added')
             progress_msg="Added OpenPGP public key from ${2} to ${3}"
         ;;
         'remove key')
