@@ -106,26 +106,26 @@ apt_get() {
 }
 
 install_llvm() {
-    local -a INSTALL_PKGS=($(
+    check_duplicate_versions "${STABLE_VERSION}"
+    validate_install_versions "${URI}dists/${SUITE}" "${install_versions[@]}"
+    unset install_versions ; (( ${#INSTALL_VERSIONS[@]} )) || return 0
+    local -ar INSTALL_PKGS=($(
         for ver in ${INSTALL_VERSIONS[@]}; do
-            [ -n "${absent}" -a "${ver}" = "${STABLE_VERSION}" ] && continue
-            [ "${ver}" = "-" ] && ver="${STABLE_VERSION}" && absent="yes"
             echo "${LLVM_PACKAGES[@]/%/-${ver}}"
         done))
-    echo ${INSTALL_PKGS[@]}
-    [ -f "${GPG_DIR}${LLVM_GPG_BASENAME}" ] &&
-        print_public_key_progress "key found" "${GPG_DIR}" ||
-        download_public_key
-    grep --quiet --no-messages --fixed-strings "${REPO}" \
-            "${PPA_DIR}${LLVM_SOURCE_FILE}" &&
-        print_source_list_progress "source found" \
-            "${PPA_DIR}${LLVM_SOURCE_FILE}" ||
-        {
-            bash -c "echo ${REPO} >> ${PPA_DIR}${LLVM_SOURCE_FILE}"
-            print_source_list_progress "no source" \
-                "${PPA_DIR}${LLVM_SOURCE_FILE}"
-        }
-    apt_get
+    declare -p INSTALL_PKGS
+    check_gpg_key "${GPG_DIR}${LLVM_GPG_BASENAME}" ||
+        get_gpg_key "${GPG_DIR}${LLVM_GPG_BASENAME}" "${BASE_URL}${GPG_PATH}"
+#    grep --quiet --no-messages --fixed-strings "${REPO}" \
+#            "${PPA_DIR}${LLVM_SOURCE_FILE}" &&
+#        print_source_list_progress "source found" \
+#            "${PPA_DIR}${LLVM_SOURCE_FILE}" ||
+#        {
+#            bash -c "echo ${REPO} >> ${PPA_DIR}${LLVM_SOURCE_FILE}"
+#            print_source_list_progress "no source" \
+#                "${PPA_DIR}${LLVM_SOURCE_FILE}"
+#        }
+#    apt_get
 }
 
 purge_llvm() {
