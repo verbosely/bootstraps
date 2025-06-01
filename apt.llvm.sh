@@ -106,24 +106,26 @@ apt_get() {
 }
 
 install_llvm() {
+    local -a disabled absent
     check_duplicate_versions "${STABLE_VERSION}"
     validate_install_versions "${URI}dists/${SUITE}" "${install_versions[@]}"
     unset install_versions ; (( ${#INSTALL_VERSIONS[@]} )) || return 0
-    local -ar INSTALL_PKGS=($(
-        for ver in ${INSTALL_VERSIONS[@]}; do
-            echo "${LLVM_PACKAGES[@]/%/-${ver}}"
-        done))
-    declare -p INSTALL_PKGS
     check_gpg_key "${GPG_DIR}${LLVM_GPG_BASENAME}" ||
         get_gpg_key "${GPG_DIR}${LLVM_GPG_BASENAME}" "${BASE_URL}${GPG_PATH}"
-#    grep --quiet --no-messages --fixed-strings "${REPO}" \
-#            "${PPA_DIR}${LLVM_SOURCE_FILE}" &&
-#        print_source_list_progress "source found" \
-#            "${PPA_DIR}${LLVM_SOURCE_FILE}" ||
+    local -ar INSTALL_PKGS=($(for ver in ${INSTALL_VERSIONS[@]}; do
+        echo "${LLVM_PACKAGES[@]/%/-${ver}}" ; done)) ; IFS=$'\n'
+    local -ar ONE_LINE_SOURCES=($(
+        printf "${ONE_LINE_SOURCE}%s ${COMPONENTS}\n" "${INSTALL_VERSIONS[@]}"))
+#    local -ar ONE_LINE_SOURCES_REGEX=($(
+#        printf "%s\n" "${ONE_LINE_SOURCES[@]}" |
+#            sed --quiet --regexp-extended "s|([].[])|\\\\\1|gp"))
+    unset IFS
+    check_apt_sources "${SOURCE_DIR}${LLVM_SOURCE_FILE}" \
+        "${ONE_LINE_SOURCES[@]}"
 #        {
-#            bash -c "echo ${REPO} >> ${PPA_DIR}${LLVM_SOURCE_FILE}"
+#            bash -c "echo ${REPO} >> ${SOURCE_DIR}${LLVM_SOURCE_FILE}"
 #            print_source_list_progress "no source" \
-#                "${PPA_DIR}${LLVM_SOURCE_FILE}"
+#                "${SOURCE_DIR}${LLVM_SOURCE_FILE}"
 #        }
 #    apt_get
 }
