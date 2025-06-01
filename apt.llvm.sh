@@ -135,10 +135,10 @@ purge_llvm() {
         echo "^((${LLVM_PACKAGES[*]})-[[:digit:]]+)[[:blank:]]+install$")
     local -ar PURGE_PKGS=($(dpkg --get-selections |
         sed --quiet --regexp-extended "s/${REGEXP}/\1/p"))
-    [ -f "${PPA_DIR}${LLVM_SOURCE_FILE}" ] &&
-        rm ${PPA_DIR}${LLVM_SOURCE_FILE} &&
+    [ -f "${SOURCE_DIR}${LLVM_SOURCE_FILE}" ] &&
+        rm ${SOURCE_DIR}${LLVM_SOURCE_FILE} &&
         print_source_list_progress "remove source" \
-            "${PPA_DIR}${LLVM_SOURCE_FILE}"
+            "${SOURCE_DIR}${LLVM_SOURCE_FILE}"
     [ -f "${GPG_DIR}${LLVM_GPG_BASENAME}" ] &&
         rm ${GPG_DIR}${LLVM_GPG_BASENAME} &&
         print_public_key_progress "remove key" "${GPG_DIR}"
