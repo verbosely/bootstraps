@@ -66,20 +66,20 @@ define_constants() {
     declare -agr LLVM_PACKAGES=(clang llvm)
     declare -gr GPG_DIR="/usr/share/keyrings/"
     declare -gr LLVM_GPG_BASENAME="llvm.gpg"
-    declare -gr PPA_DIR="/etc/apt/sources.list.d/"
+    declare -gr SOURCE_DIR="/etc/apt/sources.list.d/"
     declare -gr LLVM_SOURCE_FILE="llvm.list"
-    [ -n "${INSTALL}${REPLACE}" ] && {
+    [ -z "${PURGE}" ] && {
         declare -gr TYPE="deb"
-        declare -gr ARCH=$(dpkg --print-architecture)
-        declare -gr OPTIONS="\
-            [arch=${ARCH} signed-by=${GPG_DIR}${LLVM_GPG_BASENAME}]"
+        declare -gr ARCH="arch=$(dpkg --print-architecture)"
+        declare -gr SIGNED_BY="signed-by=${GPG_DIR}${LLVM_GPG_BASENAME}"
+        declare -gr OPTIONS="[${ARCH} ${SIGNED_BY}]"
         declare -gr BASE_URL="https://apt.llvm.org"
         [[ $(lsb_release --codename) =~ [[:blank:]]([[:alpha:]]+)$ ]]
         declare -gr CODENAME="${BASH_REMATCH[1]}"
         declare -gr URI="${BASE_URL}/${CODENAME}/"
         declare -gr SUITE="llvm-toolchain-${CODENAME}-"
         declare -gr COMPONENTS="main"
-        declare -gr REPO="${TYPE} ${OPTIONS} ${URI} ${SUITE} ${COMPONENTS}"
+        declare -gr ONE_LINE_SOURCE="${TYPE} ${OPTIONS} ${URI} ${SUITE}"
         declare -gr GPG_PATH="/llvm-snapshot.gpg.key"
     }
     unset -f define_constants
