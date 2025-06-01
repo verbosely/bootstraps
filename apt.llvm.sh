@@ -55,9 +55,9 @@ usage() {
 }
 
 needed_binaries() {
-    echo "apt-get dpkg file"
+    echo "apt-get dpkg file sed"
     [ -n "${INSTALL}${REPLACE}" ] && echo "curl gpg grep lsb_release"
-    [ -n "${PAX}${PURGE}${REPLACE}" ] && echo "sed"
+    #[ -n "${PAX}${PURGE}${REPLACE}" ] && echo "sed"
     unset -f needed_binaries
 }
 
