@@ -2,11 +2,13 @@
 # All rights reserved.
 
 params_to_csv_string() {
-    local -i i ; local str="$1"
-    for (( i=2; $# + 1 - i; i++ )); do
-        str+=", ${!i}"
+    local -i i ; local str
+    for (( i=1; $# + 1 - i; i++ )); do
+        [ -n "${!i}" ] && {
+            [ -z "$str" ] && str="${!i}" || str+=", ${!i}"
+        }
     done
-    echo "${str}"
+    [ -n "$str" ] && echo "$str"
 }
 
 sort_and_filter() {
