@@ -77,62 +77,56 @@ terminate() {
     case "${FUNCNAME[1]}" in
         'check_binaries')
             error_msg="You must install the following tools "
-            error_msg+="to run this script: $(params_to_csv_string ${@})"
-        ;;
+            error_msg+="to run this script: $(params_to_csv_string ${@})" ;;
         'check_conflicting_params')
-            error_msg="Illegal combination of options: ${1}"
-        ;;
+            error_msg="Illegal combination of options: ${1}" ;;
         'check_root_user')
-            error_msg="This script must be run as root!"
-        ;;
+            error_msg="This script must be run as root!" ;;
         'check_params')
             error_msg="Terminating..."
-            exit_status=${1}
-        ;;
+            exit_status=${1} ;;
         'check_param_args')
-            error_msg="Invalid version: '${1}'"
-        ;;
+            error_msg="Invalid version: '${1}'" ;;
         'get_gpg_key')
-            error_msg="The server for ${1} returned a ${2} HTTP response "
-            error_msg+="during an attempt to download the OpenPGP public key."
-            error_msg+="\nTerminating..."
-        ;;
+            case "$1" in
+                'curl')
+                    error_msg="Curl returned an exit status of $2 "
+                    error_msg+="when attempting to download the OpenPGP "
+                    error_msg+="public key from $3"
+                    error_msg+="\nCurl error message: \"${4}\"" ;;
+                'http')
+                    error_msg="An HTTP $2 response was returned during an "
+                    error_msg+="attempt to download the OpenPGP public key "
+                    error_msg+="from ${3}\nTerminating..." ;;
+            esac ;;
         'download_source')
             error_msg="Could not download ${1} from ${2}"
             error_msg+="\nTerminating..."
-            exit_status=${3}
-        ;;
+            exit_status=${3} ;;
         'apt_get')
             error_msg="\"apt-get ${1}\" failed!\nTerminating..."
-            exit_status=${2}
-        ;;
+            exit_status=${2} ;;
         'check_distributor_id')
             error_msg="This script is not compatible with the "
-            error_msg+="following distribution: ${1}"
-        ;;
+            error_msg+="following distribution: ${1}" ;;
         'check_matching_package_versions')
             error_msg="Could not find matching versions for the "
-            error_msg+="following packages: ${*:1}\nTerminating..."
-        ;;
+            error_msg+="following packages: ${*:1}\nTerminating..." ;;
         *)
             case "${1}" in
                 'configure')
                     error_msg="Something went wrong during the configuration "
                     error_msg+="of ${2} source code!\nTerminating..."
-                    exit_status=${3}
-                ;;
+                    exit_status=${3} ;;
                 'make')
                     error_msg="Something went wrong during \"make\"!"
                     error_msg+="\nTerminating..."
-                    exit_status=${2}
-                ;;
+                    exit_status=${2} ;;
                 'make test')
                     error_msg="Something went wrong during \"make test\"!"
                     error_msg+="\nTerminating..."
-                    exit_status=${2}
-                ;;
-            esac
-        ;;
+                    exit_status=${2} ;;
+            esac ;;
     esac
     print_message 1 "red" "${error_msg}"
     exit ${exit_status}
