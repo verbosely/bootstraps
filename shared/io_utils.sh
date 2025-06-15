@@ -4,29 +4,31 @@
 . "$(dirname ${BASH_SOURCE[0]})/term_output.sh"
 
 get_gpg_key() {
-    local code
-    code=$(curl --output "$1" --retry 6 --silent \
-        --write-out "%{http_code}\n" "$2")
-    [[ ${code} =~ [^2][[:digit:]]{2} ]] &&
-        rm --force "$1" && terminate "$2" "$code"
-    cat "$1" | gpg --yes --output "$1" --dearmor ; chmod 0644 "$1"
+    local error_msg exit_code http_code
+    send_http_request "GET" "$1" "$2"
+    (( exit_code )) && rm --force "$1" &&
+        terminate "curl" "$exit_code" "$2" "$error_msg"
+    [[ ${http_code} =~ [^2][[:digit:]]{2} ]] && rm --force "$1" &&
+        terminate "http" "$http_code" "$2"
+    gpg --yes --output "$1" --dearmor < <(cat "$1")
+    chmod 0644 "$1"
     print_public_key_progress "added" "$2" "$(dirname "$1")/"
     unset -f get_gpg_key
 }
 
-validate_install_versions() {
-    local -i i code ; local -a success ; local -A failures
-    for (( i=2; $# + 1 - i; i++ )); do
-        code=$(curl --head --output /dev/null --retry 6 --silent \
-            --write-out "%{http_code}\n" "${1}${!i}/")
-        [[ ${code} =~ 2[[:digit:]]{2} ]] && success+=(${!i}) || {
-            [ -v failures["$code"] ] && failures["$code"]+=", ${!i}" ||
-                failures["$code"]="${!i}" ; }
-    done
-    (( ${#failures[@]} )) && {
-        for code in ${!failures[@]}; do
-            print_invalid_versions "$code" "${failures["$code"]}"
-        done ; }
-    declare -agr INSTALL_VERSIONS=("${success[@]}")
-    unset -f validate_install_versions
+send_http_request() {
+    local -a options=("--retry" "0")
+    options+=("--silent" "--write-out" "%{errormsg}|%{exitcode}|%{http_code}")
+    case "$1" in
+        'HEAD')
+            local -a head_options=("--head" "--output" "/dev/null")
+            options=("${head_options[@]}" "${options[@]}") ;;
+        'GET')
+            local -a get_options=("--output" "$2")
+            options=("${get_options[@]}" "${options[@]}") ;;
+    esac
+    IFS='|' read -d '' -r error_msg exit_code http_code < <(
+        curl "${options[@]}" "${!#}")
+    (( exit_code )) && ! [ -v err_code_msgs["$exit_code"] ] &&
+        err_code_msgs["$exit_code"]="$error_msg"
 }

@@ -1,8 +1,9 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
-. "$(dirname ${BASH_SOURCE[0]})/term_output.sh"
+. "$(dirname ${BASH_SOURCE[0]})/io_utils.sh"
 . "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
+. "$(dirname ${BASH_SOURCE[0]})/term_output.sh"
 
 check_root_user() {
     ! (( ${EUID} )) || terminate
@@ -100,6 +101,34 @@ check_params() {
 check_duplicate_versions() {
     [ "${install_versions[0]}" = "stable" ] && install_versions[0]=$1 &&
         install_versions=($(sort_and_filter "${install_versions[@]}"))
+}
+
+check_install_versions() {
+    local -i i ; local error_msg exit_code http_code ; local -a success
+    local -A curl_errors err_code_msgs http_errors
+    for (( i=2; $# + 1 - i; i++ )); do
+        send_http_request "HEAD" "${1}${!i}/"
+        if (( exit_code )); then
+            curl_errors["$exit_code"]="$(
+                params_to_csv_string "${curl_errors["$exit_code"]}" "${!i}")"
+        else
+            [[ ${http_code} =~ 2[[:digit:]]{2} ]] && success+=(${!i}) ||
+                http_errors["$http_code"]=$(
+                    params_to_csv_string "${http_errors["$http_code"]}" "${!i}")
+        fi
+    done
+    (( ${#curl_errors[@]} )) && {
+        for exit_code in ${!curl_errors[@]}; do
+            print_invalid_versions "curl" "$exit_code" \
+                "${curl_errors["$exit_code"]}" "${err_code_msgs["$exit_code"]}"
+        done ; }
+    (( ${#http_errors[@]} )) && {
+        for http_code in ${!http_errors[@]}; do
+            print_invalid_versions "http" "$http_code" \
+                "${http_errors["$http_code"]}"
+        done ; }
+    declare -agr INSTALL_VERSIONS=("${success[@]}")
+    unset -f check_install_versions
 }
 
 check_gpg_key() {
