@@ -234,7 +234,18 @@ print_program_lifecycle() {
 }
 
 print_invalid_versions() {
-    local msg="The following versions returned HTTP ${1} responses "
-    msg+="and will not be installed: ${2}"
-    print_message 1 "yellow" "${msg}"
+    local msg
+    case "$1" in
+        'curl')
+            msg="Curl returned an exit status of $2 when attempting to fetch "
+            msg+="HTTP headers for the following versions: ${3}.\n"
+            msg+="These versions will not be installed."
+            msg+="\nCurl error message: \"${4}\""
+        ;;
+        'http')
+            msg="The following versions returned HTTP $2 responses "
+            msg+="and will not be installed: $3"
+        ;;
+    esac
+    print_message 1 "yellow" "$msg"
 }
