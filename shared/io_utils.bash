@@ -1,7 +1,7 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
-. "$(dirname ${BASH_SOURCE[0]})/term_output.sh"
+. "$(dirname ${BASH_SOURCE[0]})/term_output.bash"
 
 get_gpg_key() {
     local error_msg exit_code http_code

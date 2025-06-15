@@ -1,9 +1,9 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
-. "$(dirname ${BASH_SOURCE[0]})/io_utils.sh"
-. "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
-. "$(dirname ${BASH_SOURCE[0]})/term_output.sh"
+. "$(dirname ${BASH_SOURCE[0]})/io_utils.bash"
+. "$(dirname ${BASH_SOURCE[0]})/params_utils.bash"
+. "$(dirname ${BASH_SOURCE[0]})/term_output.bash"
 
 check_root_user() {
     ! (( ${EUID} )) || terminate

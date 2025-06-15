@@ -1,7 +1,7 @@
 # Copyright © 2025 Verbosely.
 # All rights reserved.
 
-. "$(dirname ${BASH_SOURCE[0]})/params_utils.sh"
+. "$(dirname ${BASH_SOURCE[0]})/params_utils.bash"
 
 # Functions for crafting messages corresponding to various common phases of
 # Linux package management and for writing to standard output and standard
