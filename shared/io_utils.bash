@@ -17,7 +17,7 @@ get_gpg_key() {
 }
 
 send_http_request() {
-    local -a options=("--retry" "0")
+    local -a options=("--retry" "5")
     options+=("--silent" "--write-out" "%{errormsg}|%{exitcode}|%{http_code}")
     case "$1" in
         'HEAD')
